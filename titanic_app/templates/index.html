@@ -1,0 +1,74 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen flex items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transition duration-300 ease-in-out">
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-700">🚢 Titanic Survival Predictor</h1>
+
+        <form id="predictForm" class="space-y-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700">Passenger Class (1, 2, or 3)</label>
+                <input type="number" name="PClass" min="1" max="3" required
+                    class="w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700">Age</label>
+                <input type="number" name="Age" step="0.1" required
+                    class="w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700">Gender</label>
+                <select name="Sex" required
+                    class="w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
+                </select>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 ease-in-out">Predict</button>
+        </form>
+
+        <div id="result" class="mt-6 text-center text-lg font-medium text-gray-800"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("predictForm");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.PClass = parseInt(data.PClass);
+            data.Age = parseFloat(data.Age);
+            data.Sex = parseInt(data.Sex);
+
+            resultDiv.innerHTML = "<span class='animate-pulse text-blue-600'>Predicting...</span>";
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            resultDiv.innerHTML = `<div class='p-4 mt-4 rounded-xl ${result.prediction ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}'>
+                ${result.message}
+            </div>`;
+        });
+    </script>
+</body>
+
+</html>
